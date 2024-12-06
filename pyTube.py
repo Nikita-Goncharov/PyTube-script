@@ -1,7 +1,7 @@
-import logging
 import os
+import logging
+import platform
 
-import validators
 from pytube import YouTube, Playlist
 
 FORMAT = '[%(asctime)s] %(filename)s[LINE:%(lineno)d] %(levelname)-8s  %(message)s'
@@ -9,12 +9,21 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 
 # TODO: more adaptive
 # linux
-DEFAULT_DOWNLOAD_BASE_DIR = '/home/nikita-goncharov/Downloads'
+
+cur_platform = platform.system()
+match (cur_platform):
+    case 'Linux':
+        DEFAULT_DOWNLOAD_BASE_DIR = '/home/nikita-goncharov/Downloads'
+    case 'Windows':
+        DEFAULT_DOWNLOAD_BASE_DIR = ''
+    case 'Darwin':
+        DEFAULT_DOWNLOAD_BASE_DIR = ''
+print(DEFAULT_DOWNLOAD_BASE_DIR)
 
 """
 TODO: 
 3. Download path(default-folder Downloads)
-4. Add logging
+4. Add loggingDEFAULT_DOWNLOAD_BASE_DIR
 
 """
 
@@ -53,6 +62,7 @@ def download(instanse_type, amount, url):
 
 
 def main():
+    global DEFAULT_DOWNLOAD_BASE_DIR
     while True:
         video_or_audio = input("Video[v] or Audio[a]: ")
         single_or_playlist = input("Single[s] or Playlist[p]: ")
@@ -66,19 +76,17 @@ def main():
         path_for_download = input(f"Path for downloading(default={DEFAULT_DOWNLOAD_BASE_DIR}): ")
 
         if path_for_download == '' or os.path.exists(path_for_download):
+            # TODO: make not global
+            DEFAULT_DOWNLOAD_BASE_DIR = path_for_download
             break
         else:
             logging.error('Path does not exists')
 
-    while True:
-        url = input("Link: ")
-        if validators.url(url):
-            break
-        else:
-            logging.error('Url is not valid')
-
+    
+    url = input("Link: ")
     download(instanse_type=video_or_audio, amount=single_or_playlist, url=url)
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        main()
